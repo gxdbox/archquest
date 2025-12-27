@@ -1,0 +1,147 @@
+{
+  "version": "1.0",
+  "description": "Architecture RPG 技能树配置",
+  "skills": [
+    {
+      "id": "req_analysis",
+      "name": "需求分析",
+      "description": "分析和理解业务需求的能力",
+      "unlock_level": 1,
+      "max_level": 5,
+      "category": "基础",
+      "icon": "📋",
+      "effects": [
+        "LV1: 基础需求识别",
+        "LV2: 需求优先级排序",
+        "LV3: 需求冲突解决",
+        "LV4: 需求追溯管理",
+        "LV5: 需求预测分析"
+      ]
+    },
+    {
+      "id": "quality_attr",
+      "name": "质量属性",
+      "description": "识别和量化系统质量属性",
+      "unlock_level": 3,
+      "max_level": 5,
+      "category": "基础",
+      "icon": "⭐",
+      "effects": [
+        "LV1: 识别基本质量属性",
+        "LV2: 质量属性场景编写",
+        "LV3: 质量属性优先级",
+        "LV4: 质量属性权衡",
+        "LV5: 质量属性量化"
+      ]
+    },
+    {
+      "id": "arch_style",
+      "name": "架构风格",
+      "description": "掌握各种架构风格和模式",
+      "unlock_level": 5,
+      "max_level": 5,
+      "category": "进阶",
+      "icon": "🏛️",
+      "effects": [
+        "LV1: 分层架构",
+        "LV2: 微服务架构",
+        "LV3: 事件驱动架构",
+        "LV4: 领域驱动设计",
+        "LV5: 混合架构设计"
+      ]
+    },
+    {
+      "id": "component_design",
+      "name": "组件设计",
+      "description": "设计高内聚低耦合的组件",
+      "unlock_level": 7,
+      "max_level": 5,
+      "category": "进阶",
+      "icon": "🧩",
+      "effects": [
+        "LV1: 组件识别",
+        "LV2: 接口设计",
+        "LV3: 依赖管理",
+        "LV4: 组件复用",
+        "LV5: 组件演进"
+      ]
+    },
+    {
+      "id": "atam",
+      "name": "ATAM评估",
+      "description": "使用ATAM方法评估架构",
+      "unlock_level": 10,
+      "max_level": 5,
+      "category": "高级",
+      "icon": "🔍",
+      "effects": [
+        "LV1: 场景收集",
+        "LV2: 架构展示",
+        "LV3: 敏感点识别",
+        "LV4: 权衡点分析",
+        "LV5: 风险评估"
+      ]
+    },
+    {
+      "id": "trade_off",
+      "name": "权衡分析",
+      "description": "在多个约束间做出最优决策",
+      "unlock_level": 12,
+      "max_level": 5,
+      "category": "高级",
+      "icon": "⚖️",
+      "effects": [
+        "LV1: 识别权衡点",
+        "LV2: 成本效益分析",
+        "LV3: 多目标优化",
+        "LV4: 决策矩阵",
+        "LV5: 战略权衡"
+      ]
+    },
+    {
+      "id": "risk_mgmt",
+      "name": "风险管理",
+      "description": "识别和管理架构风险",
+      "unlock_level": 15,
+      "max_level": 5,
+      "category": "专家",
+      "icon": "⚠️",
+      "effects": [
+        "LV1: 风险识别",
+        "LV2: 风险评估",
+        "LV3: 风险缓解",
+        "LV4: 风险监控",
+        "LV5: 风险预防"
+      ]
+    },
+    {
+      "id": "arch_doc",
+      "name": "架构文档",
+      "description": "编写清晰的架构文档",
+      "unlock_level": 18,
+      "max_level": 5,
+      "category": "专家",
+      "icon": "📝",
+      "effects": [
+        "LV1: 视图文档",
+        "LV2: 决策记录",
+        "LV3: 接口规范",
+        "LV4: 演进路线图",
+        "LV5: 架构知识库"
+      ]
+    }
+  ],
+  "categories": [
+    {"name": "基础", "color": "#4CAF50", "description": "架构师入门必备技能"},
+    {"name": "进阶", "color": "#2196F3", "description": "提升架构设计能力"},
+    {"name": "高级", "color": "#9C27B0", "description": "深入架构评估与优化"},
+    {"name": "专家", "color": "#FF9800", "description": "架构大师级技能"}
+  ],
+  "level_titles": {
+    "1": "初级架构师",
+    "5": "助理架构师",
+    "10": "中级架构师",
+    "15": "高级架构师",
+    "20": "首席架构师"
+  }
+}

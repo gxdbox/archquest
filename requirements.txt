@@ -1,0 +1,21 @@
+# Architecture RPG 依赖
+# Python 3.9+
+
+# Web 框架
+fastapi>=0.104.0
+uvicorn>=0.24.0
+
+# 前端
+streamlit>=1.28.0
+
+# 数据库
+sqlalchemy>=2.0.0
+
+# 配置和数据
+pyyaml>=6.0.1
+
+# HTTP 请求
+requests>=2.31.0
+
+# 其他工具
+python-multipart>=0.0.6
