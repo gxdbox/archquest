@@ -24,6 +24,19 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 def init_database():
     """初始化数据库，创建所有表"""
+    # 导入备份恢复工具
+    try:
+        from database.backup_restore import auto_backup_on_startup, fix_database_permissions
+        
+        # 启动时自动备份
+        auto_backup_on_startup()
+        
+        # 检查并修复权限
+        if os.path.exists(DB_PATH):
+            fix_database_permissions()
+    except Exception as e:
+        print(f"⚠️ 备份/权限检查失败: {e}")
+    
     Base.metadata.create_all(bind=engine)
     print(f"✅ 数据库初始化完成: {DB_PATH}")
 

@@ -42,6 +42,14 @@ if ! ollama list | grep -q "qwen:7b"; then
     ollama pull qwen:7b
 fi
 
+# 数据库备份和权限检查
+echo "📦 Checking database..."
+if [ -f "database/game.db" ]; then
+    python3 database/backup_restore.py auto
+else
+    echo "⚠️  No existing database found, will create new one"
+fi
+
 echo ""
 echo "✅ All checks passed!"
 echo ""

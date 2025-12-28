@@ -44,6 +44,10 @@ venv.bak/
 *.sqlite3
 database/game.db
 
+# Database backups (keep backups in git for safety)
+!database/backups/
+database/backups/*.db
+
 # Logs
 *.log
 logs/

@@ -166,6 +166,11 @@ def create_player(username: str, avatar: str = "🧑‍💻") -> Optional[Dict]:
     return api_call("create_player", "POST", {"username": username, "avatar": avatar})
 
 
+def get_all_users() -> Optional[Dict]:
+    """获取所有用户列表"""
+    return api_call("get_users", "GET")
+
+
 def get_story(user_id: int, level: int = None, stage: int = None) -> Optional[Dict]:
     """获取剧情"""
     data = {"user_id": user_id}
@@ -397,14 +402,44 @@ def render_skill_tree(skills: list, player_level: int):
 
 def init_session_state():
     """初始化会话状态"""
-    if 'user_id' not in st.session_state:
-        st.session_state.user_id = None
+    # 尝试从 query params 恢复用户 ID（用于页面刷新后保持登录）
+    try:
+        # Streamlit 1.28+ 使用 st.query_params，旧版本使用 st.experimental_get_query_params
+        if hasattr(st, 'query_params'):
+            query_params = st.query_params
+        else:
+            query_params = st.experimental_get_query_params()
+        
+        if 'user_id' not in st.session_state:
+            # 尝试从 URL 参数恢复
+            if 'user_id' in query_params:
+                try:
+                    user_id_param = query_params['user_id']
+                    if isinstance(user_id_param, list):
+                        user_id_param = user_id_param[0]
+                    st.session_state.user_id = int(user_id_param)
+                except:
+                    st.session_state.user_id = None
+            else:
+                st.session_state.user_id = None
+        
+        # 如果有 user_id，更新 URL 参数
+        if st.session_state.user_id:
+            if hasattr(st, 'query_params'):
+                st.query_params['user_id'] = str(st.session_state.user_id)
+            else:
+                st.experimental_set_query_params(user_id=str(st.session_state.user_id))
+    except:
+        # 如果 query params 不可用，只使用 session_state
+        if 'user_id' not in st.session_state:
+            st.session_state.user_id = None
+    
     if 'current_story' not in st.session_state:
         st.session_state.current_story = None
     if 'last_result' not in st.session_state:
         st.session_state.last_result = None
     if 'game_phase' not in st.session_state:
-        st.session_state.game_phase = 'login'  # login, story, answer, result
+        st.session_state.game_phase = 'login' if not st.session_state.user_id else 'story'
 
 
 # ==================== 主页面 ====================
@@ -441,6 +476,14 @@ def main():
             if st.button("🚪 退出登录"):
                 st.session_state.user_id = None
                 st.session_state.game_phase = 'login'
+                # 清除 URL 参数
+                try:
+                    if hasattr(st, 'query_params') and 'user_id' in st.query_params:
+                        del st.query_params['user_id']
+                    else:
+                        st.experimental_set_query_params()
+                except:
+                    pass
                 st.rerun()
         
         st.markdown("---")
@@ -487,30 +530,90 @@ def render_login_page():
         <div style="text-align: center; padding: 30px; background: #2d2d44; border-radius: 15px;">
             <div style="font-size: 60px;">🧑‍💻</div>
             <h2 style="color: #4CAF50;">开始你的架构师之旅</h2>
-            <p style="color: #888;">输入你的名字，成为一名架构师学徒</p>
+            <p style="color: #888;">选择已有角色或创建新角色</p>
         </div>
         """, unsafe_allow_html=True)
         
         st.markdown("")
         
-        # 头像选择
-        avatars = ["🧑‍💻", "👨‍💻", "👩‍💻", "🧙‍♂️", "🦸‍♂️", "🦸‍♀️", "🥷", "🧑‍🎓"]
-        selected_avatar = st.selectbox("选择头像", avatars, index=0)
+        # 选择登录方式
+        login_mode = st.radio(
+            "选择方式",
+            ["选择已有角色", "创建新角色"],
+            horizontal=True
+        )
         
-        # 用户名输入
-        username = st.text_input("输入你的名字", placeholder="请输入玩家名称...")
+        st.markdown("")
         
-        if st.button("🚀 开始冒险", use_container_width=True):
-            if username:
-                with st.spinner("正在创建角色..."):
-                    result = create_player(username, selected_avatar)
-                    if result:
-                        st.session_state.user_id = result['id']
-                        st.session_state.game_phase = 'story'
-                        st.success(result.get('message', '欢迎！'))
-                        st.rerun()
+        if login_mode == "选择已有角色":
+            # 获取用户列表
+            users_data = get_all_users()
+            if users_data and users_data.get('users'):
+                users = users_data['users']
+                
+                if users:
+                    st.markdown("### 📋 选择你的角色")
+                    
+                    for user in users:
+                        with st.container():
+                            col_a, col_b, col_c = st.columns([1, 4, 2])
+                            
+                            with col_a:
+                                st.markdown(f"<div style='font-size: 40px; text-align: center;'>{user['avatar']}</div>", unsafe_allow_html=True)
+                            
+                            with col_b:
+                                st.markdown(f"**{user['username']}**")
+                                st.caption(f"{user['title']} | LV.{user['player_level']} | 总分: {user['total_score']}")
+                                st.caption(f"完成任务: {user['quests_completed']} | 创建于: {user['created_at']}")
+                            
+                            with col_c:
+                                if st.button("选择", key=f"select_{user['id']}", use_container_width=True):
+                                    st.session_state.user_id = user['id']
+                                    st.session_state.game_phase = 'story'
+                                    try:
+                                        if hasattr(st, 'query_params'):
+                                            st.query_params['user_id'] = str(user['id'])
+                                        else:
+                                            st.experimental_set_query_params(user_id=str(user['id']))
+                                    except:
+                                        pass
+                                    st.success(f"欢迎回来，{user['username']}！")
+                                    st.rerun()
+                            
+                            st.markdown("---")
+                else:
+                    st.info("还没有角色，请创建一个新角色")
             else:
-                st.warning("请输入你的名字")
+                st.info("还没有角色，请创建一个新角色")
+        
+        else:  # 创建新角色
+            st.markdown("### ✨ 创建新角色")
+            
+            # 头像选择
+            avatars = ["🧑‍💻", "👨‍💻", "👩‍💻", "🧙‍♂️", "🦸‍♂️", "🦸‍♀️", "🥷", "🧑‍🎓"]
+            selected_avatar = st.selectbox("选择头像", avatars, index=0)
+            
+            # 用户名输入
+            username = st.text_input("输入你的名字", placeholder="请输入玩家名称...")
+            
+            if st.button("🚀 开始冒险", use_container_width=True):
+                if username:
+                    with st.spinner("正在创建角色..."):
+                        result = create_player(username, selected_avatar)
+                        if result:
+                            st.session_state.user_id = result['id']
+                            st.session_state.game_phase = 'story'
+                            try:
+                                if hasattr(st, 'query_params'):
+                                    st.query_params['user_id'] = str(result['id'])
+                                else:
+                                    st.experimental_set_query_params(user_id=str(result['id']))
+                            except:
+                                pass
+                            st.success(result.get('message', '欢迎！'))
+                            st.rerun()
+                else:
+                    st.warning("请输入你的名字")
 
 
 def render_story_page():

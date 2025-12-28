@@ -485,6 +485,34 @@ async def get_levels():
     return {"levels": engine.get_all_levels()}
 
 
+@app.get("/get_users")
+async def get_users():
+    """
+    获取所有用户列表
+    """
+    db = get_db_session()
+    try:
+        users = db.query(User).all()
+        user_list = []
+        for user in users:
+            progress = db.query(Progress).filter(Progress.user_id == user.id).first()
+            user_list.append({
+                "id": user.id,
+                "username": user.username,
+                "avatar": user.avatar,
+                "title": user.title,
+                "player_level": progress.player_level if progress else 1,
+                "total_score": progress.total_score if progress else 0,
+                "quests_completed": progress.quests_completed if progress else 0,
+                "created_at": user.created_at.strftime("%Y-%m-%d %H:%M") if user.created_at else ""
+            })
+        return {"users": user_list}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"获取用户列表失败: {str(e)}")
+    finally:
+        db.close()
+
+
 @app.get("/health")
 async def health_check():
     """健康检查"""
